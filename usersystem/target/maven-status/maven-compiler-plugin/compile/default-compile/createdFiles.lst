@@ -4,5 +4,6 @@ com/googledrive/usersystem/controller/UserController.class
 com/googledrive/usersystem/service/UserServiceImpl.class
 com/googledrive/usersystem/service/UserService.class
 com/googledrive/usersystem/controller/CloudSqlConnectionPoolFactory.class
+com/googledrive/usersystem/AppConfig.class
 com/googledrive/usersystem/UsersystemApplication.class
 com/googledrive/usersystem/model/User.class
