@@ -7,9 +7,9 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import com.googledrive.usersystem.model.User;
 public class UserController {
     @Autowired
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody(required = true) User user){
+    public ResponseEntity<String> register(@Qualifier("user") User user){
         String name = user.getName();
         String email = user.getEmail();
         String password = user.getPassword();
@@ -39,7 +39,7 @@ public class UserController {
     }
     @Autowired
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody(required = true) User user){
+    public ResponseEntity<String> login(@Qualifier("user")  User user){
         String name = user.getName();
         String email = user.getEmail();
         String password = user.getPassword();
