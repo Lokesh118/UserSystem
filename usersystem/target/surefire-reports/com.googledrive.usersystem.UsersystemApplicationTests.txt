@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.googledrive.usersystem.UsersystemApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.624 s - in com.googledrive.usersystem.UsersystemApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.789 s - in com.googledrive.usersystem.UsersystemApplicationTests
