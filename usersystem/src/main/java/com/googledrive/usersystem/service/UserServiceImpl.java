@@ -13,21 +13,6 @@ public class UserServiceImpl implements UserService{
     UserRepository userRepository;
     @Override
     public User saveUser(User user){
-        // String name = user.getName();
-        // String email = user.getEmail();
-        // String password = user.getPassword();
-        // try{
-        //     DataSource connection = CloudSqlConnectionPoolFactory.createConnectionPool();
-        //     String insertquery = "INSERT INTO User(username,email,password) VALUES (?,?,?)";
-        //     PreparedStatement preparedStatement = connection.getConnection().prepareStatement(insertquery);
-        //     preparedStatement.setString(1,name);
-        //     preparedStatement.setString(2,email);
-        //     preparedStatement.setString(3,password);
-        //     return user;
-        // }catch(SQLException e){
-        //     e.printStackTrace();
-        //     return null;
-        // }
         userRepository.save(user);
         return user;
     }
@@ -35,6 +20,16 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> getallUsers(){
         return userRepository.findAll();
+    }
+
+    @Override
+    public User loadUserbyEmailAndPassword(String email,String password){
+        return userRepository.findByEmailAndPassword(email,password);
+    }
+
+    @Override
+    public User loadUserByEmail(String email){
+        return userRepository.findByEmail(email);
     }
     
 }

@@ -1,4 +1,4 @@
-package com.googledrive.usersystem;
+package com.googledrive.usersystem.config;
 
 import com.googledrive.usersystem.model.User;
 

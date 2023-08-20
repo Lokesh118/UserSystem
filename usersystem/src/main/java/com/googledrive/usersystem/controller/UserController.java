@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 // import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.bind.annotation.CrossOrigin;
 // import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 
+import com.googledrive.usersystem.config.JwtTokenUtil;
+import com.googledrive.usersystem.model.AuthResponse;
 // import com.google.auth.oauth2.GoogleCredentials;
 // import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.googledrive.usersystem.model.User;
@@ -34,29 +38,49 @@ import java.util.List;
 @Qualifier("user")
 @RestController
 @RequestMapping("/auth/")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     @Autowired
+    private JwtTokenUtil jwtTokenUtil;
     private UserService userService;
+    public UserController(UserService userService,JwtTokenUtil jwtTokenUtil){
+        this.userService = userService;
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
     @PostMapping("/v2/register")
     public ResponseEntity<String> registerV2(@RequestBody User user){
+        String email = user.getEmail();
+        User existingUser = userService.loadUserByEmail(email);
+        if(existingUser != null){
+            return new ResponseEntity<String>("user already exists", HttpStatus.BAD_REQUEST);
+        }
         userService.saveUser(user);
         return new ResponseEntity<String> ("user registration done", HttpStatus.CREATED);
     }
 
     @PostMapping("/v2/login")
-    public ResponseEntity<String> loginV2(@RequestBody User user){
-        List<User> users = userService.getallUsers();
-        for(User userelement : users){
-            String temp = user.getName() + " " + user.getEmail() + " " + user.getPassword();
-            String temp2 = userelement.getName() + " " + userelement.getEmail() + " " + userelement.getPassword();
-            System.out.println(temp + "\n");
-            System.out.println(temp2 + "\n");
-            if(temp.equals(temp2)){
-                return new ResponseEntity<String>("Login Success", HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<String>("User Not Found", HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> loginV2(@RequestBody User user){
+        String email = user.getEmail();
+        String password = user.getPassword();
+        User usercheck = userService.loadUserbyEmailAndPassword(email, password);
+        if(usercheck == null) return new ResponseEntity<String>("Invalid Credentials", HttpStatus.NOT_FOUND);
+        String token = jwtTokenUtil.generateToken(user.getEmail());
+        String userId = Integer.toString(usercheck.getId());
+        AuthResponse response = new AuthResponse(userId,token);
+        return new ResponseEntity<AuthResponse>(response, HttpStatus.OK);
     }
+    
+    @GetMapping("/allusers")
+    public List<String> getallusers(){
+        List<User> users = userService.getallUsers();
+        List<String> res = new ArrayList<String>();
+        for(User user:users){
+            String temp = user.getName() + " " + user.getEmail() + " " + user.getPassword();
+            res.add(temp);
+        }
+        return res;
+    }
+
     // private JdbcTemplate jdbcTemplate;
     // public UserController(JdbcTemplate jdbcTemplate){
     //     this.jdbcTemplate = jdbcTemplate;
@@ -96,16 +120,6 @@ public class UserController {
     //     return new ResponseEntity<String>("user registration done",HttpStatus.OK);
     // }
 
-    @GetMapping("/allusers")
-    public List<String> getallusers(){
-        List<User> users = userService.getallUsers();
-        List<String> res = new ArrayList<String>();
-        for(User user:users){
-            String temp = user.getName() + " " + user.getEmail() + " " + user.getPassword();
-            res.add(temp);
-        }
-        return res;
-    }
     // @Autowired
     // @PostMapping("/login")
     // public ResponseEntity<String> login(@RequestBody User user){
