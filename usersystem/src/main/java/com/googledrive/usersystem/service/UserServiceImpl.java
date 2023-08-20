@@ -31,5 +31,12 @@ public class UserServiceImpl implements UserService{
     public User loadUserByEmail(String email){
         return userRepository.findByEmail(email);
     }
+
+    @Override
+    public void updateUser(String email, String password){
+        User user = userRepository.findByEmail(email);
+        user.setPassword(password);
+        userRepository.save(user);
+    }
     
 }

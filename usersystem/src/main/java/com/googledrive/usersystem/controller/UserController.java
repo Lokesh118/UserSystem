@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 // import org.checkerframework.common.reflection.qual.GetClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 // import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,17 +24,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.http.HttpStatus;
 
+import com.google.api.Http;
 import com.googledrive.usersystem.config.JwtTokenUtil;
 import com.googledrive.usersystem.model.AuthResponse;
+import com.googledrive.usersystem.model.EmailRequest;
 // import com.google.auth.oauth2.GoogleCredentials;
 // import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.googledrive.usersystem.model.User;
 import com.googledrive.usersystem.service.UserService;
 
+import reactor.core.publisher.Mono;
+
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @Qualifier("user")
 @RestController
@@ -81,6 +89,30 @@ public class UserController {
         return res;
     }
 
+    @GetMapping("/v1/reset-request")
+    public ResponseEntity<Integer> resetRequest(@RequestParam("email") String email) {
+        Integer integer = 123456;
+        EmailRequest emailRequest = new EmailRequest();
+        emailRequest.setEmail(email);
+        emailRequest.setSubject("password reset OTP");
+        emailRequest.setBody("Hi\n, please find OTP for password reset:" + integer.toString());
+        Mono<ResponseEntity<String>> response = sendemail(emailRequest);
+        HttpStatus code = response.map(re -> re.getStatusCode()).block();
+        return new ResponseEntity<Integer>(integer, code);
+    }
+
+    @PostMapping("/v1/password-reset")
+    public ResponseEntity<String> resetPassword(@RequestParam("email") String email, @RequestParam("password") String password){
+        userService.updateUser(email, password);
+        return new ResponseEntity<String> ("password reset succesful",HttpStatus.OK);
+    }
+
+    Mono<ResponseEntity<String>> sendemail(EmailRequest emailRequest){
+        WebClient client = WebClient.create();
+        String apiUrl = "http://localhost:8082/notifications/send-email";
+        return client.post().uri(apiUrl).bodyValue(emailRequest).retrieve().toEntity(String.class);
+    }
+    
     // private JdbcTemplate jdbcTemplate;
     // public UserController(JdbcTemplate jdbcTemplate){
     //     this.jdbcTemplate = jdbcTemplate;

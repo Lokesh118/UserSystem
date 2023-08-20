@@ -9,4 +9,5 @@ public interface UserService {
     public List<User> getallUsers();
     public User loadUserbyEmailAndPassword(String email,String password);
     public User loadUserByEmail(String email);
+    public void updateUser(String email, String password);
 }
